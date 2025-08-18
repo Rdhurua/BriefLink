@@ -8,6 +8,6 @@ export async function POST(req: Request) {
   const { summaryId, ttlMinutes = 60 } = await req.json();
   const token = nano();
   const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
-  const share = await Share.create({ summaryId, token, expiresAt });
+  await Share.create({ summaryId, token, expiresAt });
   return Response.json({ url: `${process.env.NEXT_PUBLIC_APP_URL}/s/${token}` });
 }

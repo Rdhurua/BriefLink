@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     return new Response("No valid transcript provided", { status: 400 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error during uploading:", error);
     return new Response("Internal Server Error", { status: 500 });
   }
