@@ -1,11 +1,19 @@
 // app/s/[shareId]/page.tsx
 import { db } from "@/lib/db";
 import { Share, SummaryVersion } from "@/lib/models";
+import type { Metadata, ResolvingMetadata } from "next";
 
-export default async function SharePage({ params }: { params: { shareId: string } }) {
+// ✅ Correct Next.js 15 typing
+type PageProps = {
+  params: Promise<{ shareId: string }>;
+};
+
+export default async function SharePage({ params }: PageProps) {
+  const { shareId } = await params; // ✅ must await
+
   await db();
 
-  const share = await Share.findOne({ token: params.shareId });
+  const share = await Share.findOne({ token: shareId });
   if (!share)
     return (
       <main className="flex items-center justify-center h-screen">
@@ -43,4 +51,16 @@ export default async function SharePage({ params }: { params: { shareId: string 
       </div>
     </main>
   );
+}
+
+// ✅ Optional SEO metadata
+export async function generateMetadata(
+  { params }: PageProps,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { shareId } = await params;
+  return {
+    title: `Shared Summary - ${shareId}`,
+    description: "View the shared summary",
+  };
 }
