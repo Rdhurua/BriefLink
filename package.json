@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "groq-sdk": "^0.30.0",
+    "lucide-react": "^0.542.0",
     "mongoose": "^8.17.1",
     "nanoid": "^5.1.5",
     "next": "15.4.6",
