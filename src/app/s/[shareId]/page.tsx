@@ -3,13 +3,13 @@ import { db } from "@/lib/db";
 import { Share, SummaryVersion } from "@/lib/models";
 import type { Metadata, ResolvingMetadata } from "next";
 
-// ✅ Correct Next.js 15 typing
+
 type PageProps = {
   params: Promise<{ shareId: string }>;
 };
 
 export default async function SharePage({ params }: PageProps) {
-  const { shareId } = await params; // ✅ must await
+  const { shareId } = await params; 
 
   await db();
 
@@ -56,7 +56,7 @@ export default async function SharePage({ params }: PageProps) {
 // ✅ Optional SEO metadata
 export async function generateMetadata(
   { params }: PageProps,
-  _parent: ResolvingMetadata
+  // _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { shareId } = await params;
   return {

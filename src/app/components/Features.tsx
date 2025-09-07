@@ -86,6 +86,7 @@ export default function Features() {
       setSummaries([...summaries, newSummary]);
       setSelectedSummaryId(j.summaryId);
       setPrompt("");
+      
     } catch (error) {
       console.error("Error summarizing:", error);
     } finally {
