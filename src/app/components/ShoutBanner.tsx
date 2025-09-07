@@ -38,7 +38,7 @@ const ShoutoutBanner = () => {
       }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [charIndex, index]);
+  }, [charIndex, index,messages]);
 
 
 

@@ -1,7 +1,7 @@
 // app/s/[shareId]/page.tsx
 import { db } from "@/lib/db";
 import { Share, SummaryVersion } from "@/lib/models";
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata} from "next";
 
 
 type PageProps = {

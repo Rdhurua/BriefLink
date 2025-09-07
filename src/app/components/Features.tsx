@@ -62,7 +62,7 @@ export default function Features() {
     setTranscriptId(j.transcriptId); // This hides upload and shows prompt automatically
   }
 
-  let [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function onSummarize() {
     if (!transcriptId || !prompt.trim()) return;
