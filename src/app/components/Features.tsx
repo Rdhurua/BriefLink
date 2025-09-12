@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-
+import { CircleCheck, CircleX } from "lucide-react";
+import { downloadDOCX, downloadPDF, downloadTXT } from "@/lib/download";
 interface Summary {
   id: string;
   content: string;
@@ -11,17 +12,14 @@ export default function Features() {
   const [transcriptId, setTranscriptId] = useState<string>("");
   const [prompt, setPrompt] = useState("");
   const [summaries, setSummaries] = useState<Summary[]>([]);
-  const [emails, setEmails] = useState("");
-  const [pii, setPii] = useState(false);
   const [publicUrl, setPublicUrl] = useState("");
 
   const [useFile, setUseFile] = useState(false);
   const [useText, setUseText] = useState(false);
 
-  const [showEmailModal, setShowEmailModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
-
   const [selectedSummaryId, setSelectedSummaryId] = useState<string>("");
+  const [dropDown,setDropDown]=useState<boolean>(false);
 
   // Reset for new transcript
   const resetTranscript = () => {
@@ -32,8 +30,6 @@ export default function Features() {
     setUseFile(false);
     setUseText(false);
     setPublicUrl("");
-    setEmails("");
-    setPii(false);
     setFileName("No file chosen");
   };
 
@@ -118,13 +114,14 @@ export default function Features() {
   }
   const [fileName, setFileName] = useState("No file chosen");
 
-  const onShareEmail=async()=>{
-     console.log("sharing the email..");
+
+  const handleDrop=()=>{
+     setDropDown(!dropDown);
   }
   return (
     <>
     <main className="max-w-7xl mx-auto px-4 md:px-6 py-10 h-auto">
-  <div className="p-6 sm:p-8 flex flex-col lg:flex-row gap-6 justify-between w-full">
+  <div className={`p-6 sm:p-8 flex flex-col lg:flex-row gap-6 justify-between w-full`}>
     {/* Left Column: Upload OR Prompt */}
     <div className="w-full lg:w-1/3 space-y-6">
       {!transcriptId ? (
@@ -206,152 +203,154 @@ export default function Features() {
           </form>
         </div>
       ) : (
-        <div className="space-y-4 w-full">
-          {/* Success Alert */}
-          <div className="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-center shadow-sm animate-fade-in text-sm sm:text-base">
-            ✅ Successfully Uploaded!
-          </div>
+        <div className="w-full max-w-2xl mx-auto bg-white shadow-lg shadow-black rounded-xl p-6 space-y-6 border border-gray-200">
+  {/* Success Alert */}
+  <div className="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-lg text-center shadow-sm animate-fade-in text-sm sm:text-base flex items-center justify-center">
+    <CircleCheck className="mx-2"/> Successfully Uploaded!
+  </div>
 
-          {/* Small Uploaded Box */}
-          <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200 text-center text-sm sm:text-base">
-            <p className="text-gray-700">Transcript is ready for summarization.</p>
-          </div>
+  {/* Uploaded Box */}
+  <div className="bg-gray-50 shadow-sm rounded-lg p-4 border border-gray-200 text-center text-sm sm:text-base">
+    <p className="text-gray-700">Transcript is ready for summarization.</p>
+  </div>
 
-          {/* Prompt Input + Summarize Button */}
-          <div className="bg-yellow-50 shadow-md rounded-xl p-6 border-l-4 border-yellow-400 flex flex-col justify-center">
-            <label className="block font-semibold mb-2 text-gray-700 text-center text-sm sm:text-base">
-              Instruction / Prompt
-            </label>
+  {/* Prompt Input + Summarize Button */}
+  <div className="bg-white shadow-md rounded-xl p-6 border border-gray-200">
+    <label className="block font-semibold mb-2 text-gray-800 text-center text-sm sm:text-base">
+      Instruction / Prompt
+    </label>
 
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none text-gray-900 text-sm sm:text-base"
-              placeholder="Summarize in bullet points for executives..."
-            />
+    <textarea
+      value={prompt}
+      onChange={(e) => setPrompt(e.target.value)}
+      rows={3}
+      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:outline-none text-gray-900 text-sm sm:text-base"
+      placeholder="Summarize in bullet points for executives..."
+    />
 
-            <button
-              onClick={onSummarize}
-              className="mt-4 w-full bg-yellow-500 text-black py-2 px-4 rounded-lg font-semibold hover:bg-yellow-600 transition text-sm sm:text-base"
-            >
-              {loading ? "Summarizing.." : "Generate Summary"}
-            </button>
-          </div>
-        </div>
+    <button
+      onClick={onSummarize}
+      className="mt-4 w-full bg-black text-white hover:bg-gray-900 py-2 px-4 rounded-lg font-semibold  transition text-sm sm:text-base"
+    >
+      {loading ? "Summarizing.." : "Generate Summary"}
+    </button>
+  </div>
+      </div>
+
       )}
     </div>
 
     {/* Right Column: Summary Area */}
-    <div className="w-full lg:w-2/3">
-      {summaries.length > 0 && (
-        <div className="flex flex-col gap-6">
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 justify-start">
-            <button
-              onClick={resetTranscript}
-              className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
-            >
-              New Transcript
-            </button>
-            <button
-              onClick={() => setShowEmailModal(true)}
-              className="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base"
-            >
-              Share via Email
-            </button>
-            <button
-              onClick={onCreateLink}
-              className="bg-gray-800 text-white py-2 px-4 rounded-lg hover:bg-gray-900 transition text-sm sm:text-base"
-            >
-              Generate Link
-            </button>
-          </div>
+   <div className="w-full lg:w-2/3">
+  {summaries.length > 0 && (
+    <div className="flex flex-col gap-6">
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3 justify-center bg-white p-4 rounded-lg shadow-md shadow-gray-600 border border-gray-200">
+        <button
+          onClick={resetTranscript}
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
+        >
+          New Transcript
+        </button>
+    
+     {selectedSummaryId && (
+    <div className="relative inline-block">
+      <button className="bg-black text-white  py-2 px-4 rounded-lg hover:bg-gray-900 transition" onClick={handleDrop}>
+        Download 
+      </button>
+      <div className={`absolute ${!dropDown && "hidden"} group-hover:block mt-1 bg-white shadow-md rounded-lg w-32`}>
+        <button
+          className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+          onClick={() =>
+            downloadPDF(
+              "summary",
+              summaries.find((s) => s.id === selectedSummaryId)?.content || ""
+            )
+          }
+        >
+          PDF
+        </button>
+        <button
+          className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+          onClick={() =>
+            downloadDOCX(
+              "summary",
+              summaries.find((s) => s.id === selectedSummaryId)?.content || ""
+            )
+          }
+        >
+          DOCX
+        </button>
+        <button
+          className="block px-4 py-2 w-full text-left hover:bg-gray-100"
+          onClick={() =>
+            downloadTXT(
+              "summary",
+              summaries.find((s) => s.id === selectedSummaryId)?.content || ""
+            )
+          }
+        >
+          TXT
+        </button>
+      </div>
+    </div>
+  )}
 
-          {/* Editable Summary */}
-          {selectedSummaryId && (
-            <div className="bg-white shadow-md rounded-xl p-4 sm:p-6 border border-gray-200 h-[300px] sm:h-[400px] overflow-y-auto">
-              <label className="block font-semibold mb-2 text-gray-700 text-sm sm:text-base">
-                Editable Summary
-              </label>
-              <textarea
-                value={
-                  summaries.find((s) => s.id === selectedSummaryId)?.content || ""
-                }
-                onChange={(e) => {
-                  setSummaries((prev) =>
-                    prev.map((s) =>
-                      s.id === selectedSummaryId
-                        ? { ...s, content: e.target.value }
-                        : s
-                    )
-                  );
-                }}
-                rows={10}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-900 text-sm sm:text-base"
-              />
-              <button
-                onClick={() =>
-                  onSave(summaries.find((s) => s.id === selectedSummaryId)!)
-                }
-                className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 transition text-sm sm:text-base"
-              >
-                Save Edits
-              </button>
-            </div>
-          )}
+        <button
+          onClick={onCreateLink}
+          className="bg-black text-white py-2 px-4 rounded-lg hover:bg-gray-900  border border-black transition text-sm sm:text-base"
+        >
+          Generate Link
+        </button>
+      </div>
 
-          {/* Prompt Commands List */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm sm:text-base">
-            <h3 className="font-semibold text-gray-800 mb-2">Prompts Used</h3>
-            <ul className="list-disc list-inside space-y-1 text-gray-700">
-              {summaries.map((s) => (
-                <li key={s.id}>{s.prompt}</li>
-              ))}
-            </ul>
-          </div>
+      {/* Editable Summary */}
+      {selectedSummaryId && (
+        <div className="bg-white shadow-md shadow-gray-700 rounded-xl
+         p-4 sm:p-6 border border-gray-200 h-auto overflow-y-auto lg:overflow-hidden ">
+          <label className="block  mb-2 text-gray-700 md:text-lg font-bold sm:text-base">
+            Editable Summary
+          </label>
+          <textarea
+            value={
+              summaries.find((s) => s.id === selectedSummaryId)?.content || ""
+            }
+            onChange={(e) => {
+              setSummaries((prev) =>
+                prev.map((s) =>
+                  s.id === selectedSummaryId
+                    ? { ...s, content: e.target.value }
+                    : s
+                )
+              );
+            }}
+            rows={10}
+            className="w-full p-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-900 text-sm sm:text-base"
+          />
+          <button
+            onClick={() =>
+              onSave(summaries.find((s) => s.id === selectedSummaryId)!)
+            }
+            className="mt-4  bg-black text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-900 transition text-sm sm:text-base"
+          >
+            Save Edits
+          </button>
         </div>
       )}
-    </div>
 
-    {/* Email Modal */}
-    {showEmailModal && (
-      <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 px-4">
-        <div className="bg-white rounded-lg p-6 w-11/12 sm:w-[28rem] shadow-lg relative">
-          <button
-            onClick={() => setShowEmailModal(false)}
-            className="absolute top-2 right-2 text-gray-900 hover:text-gray-800 cursor-pointer"
-          >
-            ✕
-          </button>
-          <h2 className="text-lg font-semibold mb-4 text-gray-900">Share Summary via Email</h2>
-          <input
-            value={emails}
-            onChange={(e) => setEmails(e.target.value)}
-            placeholder="Recipients (comma-separated)"
-            className="w-full p-3 border border-gray-300 rounded-lg mb-4 text-gray-900 text-sm sm:text-base"
-          />
-          <div className="flex items-center gap-2 mb-4 text-gray-900 text-sm sm:text-base">
-            <input
-              type="checkbox"
-              checked={pii}
-              onChange={(e) => setPii(e.target.checked)}
-              className="w-4 h-4"
-            />
-            <span>Redact PII before sending</span>
-          </div>
-          <button
-            onClick={async () => {
-              await onShareEmail();
-              setShowEmailModal(false);
-            }}
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base"
-          >
-            Send
-          </button>
-        </div>
+      {/* Prompt Commands List */}
+      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-md  text-sm sm:text-base">
+        <h3 className="font-semibold text-gray-800 mb-2">Prompts Used</h3>
+        <ul className="list-disc list-inside space-y-1 text-gray-700">
+          {summaries.map((s) => (
+            <li key={s.id}>{s.prompt}</li>
+          ))}
+        </ul>
       </div>
-    )}
+    </div>
+  )}
+</div>
+
 
     {/* Link Modal */}
     {showLinkModal && (
@@ -361,7 +360,7 @@ export default function Features() {
             onClick={() => setShowLinkModal(false)}
             className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
           >
-            ✕
+            <CircleX/>
           </button>
           <h2 className="text-lg font-semibold mb-4 text-gray-900">Public Link</h2>
           <div className="flex gap-2 mb-4">
@@ -380,6 +379,8 @@ export default function Features() {
         </div>
       </div>
     )}
+
+    
   </div>
 </main>
 

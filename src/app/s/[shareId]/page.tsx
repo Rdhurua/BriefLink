@@ -41,7 +41,7 @@ export default async function SharePage({ params }: PageProps) {
       <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
         <h1 className="text-2xl font-bold text-indigo-600 mb-4">Shared Summary</h1>
         <div className="prose prose-indigo">
-          <pre className="whitespace-pre-wrap text-gray-900">{s.content}</pre>
+          <pre className="whitespace-pre-wrap text-gray-900 font-normal">{s.content}</pre>
         </div>
         <div className="mt-6 flex justify-end">
           <p className="text-sm text-gray-800">
